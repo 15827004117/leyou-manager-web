@@ -6,7 +6,7 @@
                 @handleAdd="handleAdd"
                 @handleEdit="handleEdit"
                 @handleDelete="handleDelete"
-                @handleClick="handleClick"
+                @handleClick="npmhandleClick"
         />
       </v-flex>
   </v-card>
