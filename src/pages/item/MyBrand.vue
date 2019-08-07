@@ -12,7 +12,7 @@
     <v-data-table
       :headers="headers"
       :items="brands"
-      :search="search"
+      :search="key"
       :pagination.sync="pagination"
       :total-items="totalBrands"
       :loading="loading"
@@ -48,21 +48,10 @@
           {text: "操作", value: "id", align: 'center', sortable: true},
         ],
         brands:[],
-        pagination:[],
+        pagination:{},
         totalBrands: 0,
         loading: false,
-        key:"", // 搜索条件
-      }
-    },
-    watch:{   //监控key值发生变化，调用loadBrands方法
-      key(){
-        this.loadBrands();
-      },
-      pagination:{  // 复制类型，深度监控
-        deep: true,
-        handler(){
-          this.loadBrands();
-        }
+        key:'', // 搜索条件
       }
     },
     created() { //Vue加载时执行loadBrands方法
@@ -102,14 +91,32 @@
 
       this.loadBrands();
     },
+    watch:{   //监控key值发生变化，调用loadBrands方法
+      key(){
+        this.pagination.page = 1;
+      },
+      pagination:{  // 复制类型，深度监控
+        deep: true,
+        handler(){
+          this.loadBrands();
+        }
+      }
+    },
     methods:{
       loadBrands(){ //后台查询请求
-        this.$http.get("/brand/page",{
-          page: this.pagination.page, // 当前页
-          rows: this.pagination.rowsPerPage,  // 每页大小
-          sortBy: this.pagination.sortBy, // 排序字段
-          desc: this.pagination.descending, // 是否降序
-          key: this.key // 搜索条件
+        this.loading = true;
+        this.$http.get("item/brand/page",{
+          params:{
+            page: this.pagination.page, // 当前页
+            rows: this.pagination.rowsPerPage,  // 每页大小
+            sortBy: this.pagination.sortBy, // 排序字段
+            desc: this.pagination.descending, // 是否降序
+            key: this.key // 搜索条件
+          }
+        }).then(resp => {
+          this.brands = resp.data.items;
+          this.totalBrands = resp.data.total;
+          this.loading = false;
         })
       }
     },
